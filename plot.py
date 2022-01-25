@@ -117,6 +117,61 @@ def plot():
             
                 except: print("!",file_name)
 
+def process_pcam(f,n):
+    file = open(f)
+    csvreader = csv.reader(file)
+    pic=np.zeros((143*n,143))
+
+    j=0
+    c=0
+    for row in csvreader:
+        if len(row)==143 and j<143*n:    
+            c+=1
+            for i in range(143):
+                print(n)
+                try:
+                    if row[i]=="":
+                        pic[j][i]=None
+                    else:
+                        pic[j][i]=float(row[i])
+                except:
+                    pic[j][i]=None
+                    print(row[i])
+            j+=1
+
+    print("_____C______:",c)
+    file.close()
+    return pic
+
+
+def plot_pcam():
+    thisdict = {
+  "PAC.csv": 1,
+  "ELE_BFS.csv": 2,
+  "ELE.csv": 5,
+  'CUR.csv':5,
+  'ACD.csv':1}
+  
+    list_dir=os.listdir(directory2)
+    for file_name in list_dir:
+        f = os.path.join(directory2, file_name) 
+
+        n=thisdict[file_name]
+        pic=process_pcam(f,n)
+        X=pic[0][1:142]
+        Y=pic.T[0][1:142]
+        Pic = pic[1:143*n-1].T[1:142].T 
+
+        c=0
+        for i in range(n):
+            plt.figure(figsize=[6,5])
+            Pic=pic[142*c+1:142*(c)+1+141].T[1:142].T
+            surf=plt.contourf(X,Y,Pic,30,cmap=plt.cm.nipy_spectral)  #,list(range(38,58))
+            plt.title(file_name+str(c))
+            plt.colorbar(surf)
+            plt.savefig(file_name+str(c)+'.png', format='png')
+            #plt.show()
+            c+=1
 
         
 if __name__=="__main__":
